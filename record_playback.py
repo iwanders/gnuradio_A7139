@@ -11,8 +11,10 @@
 from packaging.version import Version as StrictVersion
 from PyQt5 import Qt
 from gnuradio import qtgui
-from gnuradio import gr
+from gnuradio import blocks
+from gnuradio import filter
 from gnuradio.filter import firdes
+from gnuradio import gr
 from gnuradio.fft import window
 import sys
 import signal
@@ -61,12 +63,30 @@ class record_playback(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 32000
+        self.samp_rate = samp_rate = 2048000
 
         ##################################################
         # Blocks
         ##################################################
 
+        self.qtgui_sink_x_1 = qtgui.sink_c(
+            32768, #fftsize
+            window.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            samp_rate, #bw
+            "", #name
+            True, #plotfreq
+            True, #plotwaterfall
+            True, #plottime
+            True, #plotconst
+            None # parent
+        )
+        self.qtgui_sink_x_1.set_update_time(1.0/60)
+        self._qtgui_sink_x_1_win = sip.wrapinstance(self.qtgui_sink_x_1.qwidget(), Qt.QWidget)
+
+        self.qtgui_sink_x_1.enable_rf_freq(False)
+
+        self.top_layout.addWidget(self._qtgui_sink_x_1_win)
         self.qtgui_sink_x_0 = qtgui.sink_c(
             32768, #fftsize
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -79,19 +99,24 @@ class record_playback(gr.top_block, Qt.QWidget):
             True, #plotconst
             None # parent
         )
-        self.qtgui_sink_x_0.set_update_time(1.0/100)
+        self.qtgui_sink_x_0.set_update_time(1.0/60)
         self._qtgui_sink_x_0_win = sip.wrapinstance(self.qtgui_sink_x_0.qwidget(), Qt.QWidget)
 
         self.qtgui_sink_x_0.enable_rf_freq(False)
 
         self.top_layout.addWidget(self._qtgui_sink_x_0_win)
+        self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(1, firdes.low_pass(1.0,samp_rate,samp_rate/2,0.05e6), (434100000 + 0.07e6), samp_rate)
+        self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "time" == "auto" else max( int(float(1) * samp_rate) if "time" == "time" else int(1), 1) )
         self.blocks_file_meta_source_0 = blocks.file_meta_source('/tmp/capture_query.grcbin', True, False, '/tmp/capture_query.grcbin')
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_file_meta_source_0, 0), (self.qtgui_sink_x_0, 0))
+        self.connect((self.blocks_file_meta_source_0, 0), (self.blocks_throttle2_0, 0))
+        self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
+        self.connect((self.blocks_throttle2_0, 0), (self.qtgui_sink_x_0, 0))
+        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_sink_x_1, 0))
 
 
     def closeEvent(self, event):
@@ -107,7 +132,10 @@ class record_playback(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
+        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.low_pass(1.0,self.samp_rate,self.samp_rate/2,0.05e6))
         self.qtgui_sink_x_0.set_frequency_range(443920000, self.samp_rate)
+        self.qtgui_sink_x_1.set_frequency_range(0, self.samp_rate)
 
 
 
