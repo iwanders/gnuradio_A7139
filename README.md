@@ -19,3 +19,9 @@ Start at 435210.93e-6, we count; 29 symbols to 438118.58e-6
 
 Looks like an 10 kHz bitrate. Likely manchester encoded.
 
+
+
+The [rtl_433](https://triq.org/rtl_433/) project also looks interesting:
+`nix run current#rtl_433 -- -s 2048000  -X "n=dongle,modulation=FSK_MC_ZEROBIT,s=100,l=100,reset=1000"`
+
+
