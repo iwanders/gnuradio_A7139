@@ -266,6 +266,24 @@ blocks:
     coordinate: [912, 368.0]
     rotation: 0
     state: true
+- name: blocks_head_0
+  id: blocks_head
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: int(samp_rate*1.0)
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [240, 516.0]
+    rotation: 0
+    state: true
 - name: blocks_skiphead_0
   id: blocks_skiphead
   parameters:
@@ -509,7 +527,7 @@ blocks:
     bus_structure: null
     coordinate: [1256, 276.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: qtgui_time_sink_x_0
   id: qtgui_time_sink_x
   parameters:
@@ -618,7 +636,8 @@ connections:
 - [analog_simple_squelch_cc_1, '0', qtgui_sink_x_1, '0']
 - [blocks_file_meta_source_0, '0', blocks_skiphead_0, '0']
 - [blocks_float_to_complex_0, '0', qtgui_time_sink_x_0, '0']
-- [blocks_skiphead_0, '0', blocks_throttle2_0, '0']
+- [blocks_head_0, '0', blocks_throttle2_0, '0']
+- [blocks_skiphead_0, '0', blocks_head_0, '0']
 - [blocks_throttle2_0, '0', freq_xlating_fir_filter_xxx_0, '0']
 - [blocks_throttle2_0, '0', qtgui_sink_x_0, '0']
 - [blocks_uchar_to_float_0, '0', blocks_float_to_complex_0, '0']
