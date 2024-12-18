@@ -71,8 +71,8 @@ class record_playback(gr.top_block, Qt.QWidget):
         ##################################################
         self.symbol_rate = symbol_rate = 10000
         self.samp_rate = samp_rate = 2048000
-        self.squelch_threshold_db = squelch_threshold_db = -40
-        self.squelch_alpha = squelch_alpha = 1.0
+        self.squelch_threshold_db = squelch_threshold_db = -2
+        self.squelch_alpha = squelch_alpha = 0.74
         self.sps = sps = samp_rate / symbol_rate
         self.fsk_deviation_hz = fsk_deviation_hz = 20e3
         self.expected_ted_gain = expected_ted_gain = 1.0
@@ -82,10 +82,10 @@ class record_playback(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
-        self._squelch_threshold_db_range = Range(-100, 100, 1, -40, 200)
+        self._squelch_threshold_db_range = Range(-100, 100, 1, -2, 200)
         self._squelch_threshold_db_win = RangeWidget(self._squelch_threshold_db_range, self.set_squelch_threshold_db, "'squelch_threshold_db'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._squelch_threshold_db_win)
-        self._squelch_alpha_range = Range(0, 1.0, 0.1, 1.0, 200)
+        self._squelch_alpha_range = Range(0, 1.0, 0.0000001, 0.74, 200)
         self._squelch_alpha_win = RangeWidget(self._squelch_alpha_range, self.set_squelch_alpha, "'squelch_alpha'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._squelch_alpha_win)
         self.qtgui_time_sink_x_2 = qtgui.time_sink_f(
@@ -102,7 +102,7 @@ class record_playback(gr.top_block, Qt.QWidget):
 
         self.qtgui_time_sink_x_2.enable_tags(True)
         self.qtgui_time_sink_x_2.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_2.enable_autoscale(False)
+        self.qtgui_time_sink_x_2.enable_autoscale(True)
         self.qtgui_time_sink_x_2.enable_grid(False)
         self.qtgui_time_sink_x_2.enable_axis_labels(True)
         self.qtgui_time_sink_x_2.enable_control_panel(False)
@@ -215,13 +215,11 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.blocks_file_meta_source_0 = blocks.file_meta_source('/tmp/capture_query.grcbin', True, False, '/tmp/capture_query.grcbin')
         self.analog_simple_squelch_cc_1 = analog.simple_squelch_cc(squelch_threshold_db, squelch_alpha)
         self.analog_quadrature_demod_cf_1 = analog.quadrature_demod_cf((samp_rate/(2*math.pi*fsk_deviation_hz)))
-        self.analog_agc_xx_1 = analog.agc_cc((1e-6), 1.0, 1.0, 65536)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_agc_xx_1, 0), (self.analog_simple_squelch_cc_1, 0))
         self.connect((self.analog_quadrature_demod_cf_1, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.analog_quadrature_demod_cf_1, 0), (self.qtgui_time_sink_x_2, 0))
         self.connect((self.analog_simple_squelch_cc_1, 0), (self.analog_quadrature_demod_cf_1, 0))
@@ -232,7 +230,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_throttle2_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_uchar_to_float_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_uchar_to_float_0, 0))
-        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.analog_agc_xx_1, 0))
+        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.analog_simple_squelch_cc_1, 0))
 
 
     def closeEvent(self, event):
