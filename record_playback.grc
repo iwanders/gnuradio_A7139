@@ -227,7 +227,7 @@ blocks:
     bus_structure: null
     coordinate: [56, 524.0]
     rotation: 0
-    state: bypassed
+    state: enabled
 - name: blocks_message_debug_0
   id: blocks_message_debug
   parameters:
@@ -740,8 +740,8 @@ blocks:
     interp: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
-    ntaps: '4096'
-    samp_rate: samp_rate
+    ntaps: '512'
+    samp_rate: samp_rate / 4
     sym_rate: symbol_rate
     type: fir_filter_fff
   states:

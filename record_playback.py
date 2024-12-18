@@ -95,10 +95,10 @@ class record_playback(gr.top_block, Qt.QWidget):
             1,
             firdes.root_raised_cosine(
                 1,
-                samp_rate,
+                (samp_rate / 4),
                 symbol_rate,
                 0.98,
-                4096))
+                512))
         self.qtgui_time_sink_x_2 = qtgui.time_sink_f(
             1024, #size
             samp_rate, #samp_rate
@@ -279,6 +279,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "time" == "auto" else max( int(float(1) * samp_rate) if "time" == "time" else int(1), 1) )
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*1, (int(samp_rate*1.5)))
         self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.info)
+        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, (int(samp_rate*1.0)))
         self.blocks_file_meta_source_0 = blocks.file_meta_source('/tmp/capture_query.grcbin', True, False, '/tmp/capture_query.grcbin')
         self.analog_simple_squelch_cc_1 = analog.simple_squelch_cc(squelch_threshold_db, squelch_alpha)
         self.analog_quadrature_demod_cf_1 = analog.quadrature_demod_cf((samp_rate/(2*math.pi*fsk_deviation_hz)))
@@ -292,13 +293,14 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.connect((self.analog_quadrature_demod_cf_1, 0), (self.root_raised_cosine_filter_0, 0))
         self.connect((self.analog_simple_squelch_cc_1, 0), (self.analog_quadrature_demod_cf_1, 0))
         self.connect((self.blocks_file_meta_source_0, 0), (self.blocks_skiphead_0, 0))
-        self.connect((self.blocks_skiphead_0, 0), (self.blocks_throttle2_0, 0))
+        self.connect((self.blocks_head_0, 0), (self.blocks_throttle2_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_head_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_uchar_to_float_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_uchar_to_float_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_time_sink_x_2, 0))
         self.connect((self.digital_symbol_sync_xx_0, 1), (self.qtgui_time_sink_x_2, 1))
+        self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_time_sink_x_2, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.analog_simple_squelch_cc_1, 0))
         self.connect((self.root_raised_cosine_filter_0, 0), (self.digital_symbol_sync_xx_0, 0))
         self.connect((self.root_raised_cosine_filter_0, 0), (self.qtgui_time_sink_x_1, 0))
@@ -318,7 +320,7 @@ class record_playback(gr.top_block, Qt.QWidget):
     def set_symbol_rate(self, symbol_rate):
         self.symbol_rate = symbol_rate
         self.set_sps(self.samp_rate / self.symbol_rate)
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.symbol_rate, 0.98, 4096))
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, (self.samp_rate / 4), self.symbol_rate, 0.98, 512))
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -334,7 +336,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_2.set_samp_rate(self.samp_rate)
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.symbol_rate, 0.98, 4096))
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, (self.samp_rate / 4), self.symbol_rate, 0.98, 512))
 
     def get_squelch_threshold_db(self):
         return self.squelch_threshold_db
