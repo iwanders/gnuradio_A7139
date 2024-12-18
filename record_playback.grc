@@ -22,7 +22,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: Not titled yet
+    title: Analysis
     window_size: (1000,1000)
   states:
     bus_sink: false
@@ -54,7 +54,7 @@ blocks:
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
-    start: '0'
+    start: '0.01'
     step: '0.01'
     stop: '1.0'
     value: '1.0'
@@ -135,7 +135,7 @@ blocks:
     start: '-100'
     step: '1'
     stop: '100'
-    value: '-2'
+    value: '-3'
     widget: counter_slider
   states:
     bus_sink: false
@@ -169,7 +169,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [664, 284.0]
+    coordinate: [632, 292.0]
     rotation: 0
     state: enabled
 - name: analog_simple_squelch_cc_1
@@ -227,7 +227,7 @@ blocks:
     bus_structure: null
     coordinate: [56, 524.0]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: blocks_message_debug_0
   id: blocks_message_debug
   parameters:
@@ -294,7 +294,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [904, 432.0]
+    coordinate: [1040, 352.0]
     rotation: 0
     state: true
 - name: digital_binary_slicer_fb_0
@@ -309,7 +309,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [960, 312.0]
+    coordinate: [912, 288.0]
     rotation: 0
     state: enabled
 - name: digital_correlate_access_code_tag_xx_0
@@ -355,7 +355,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [520, 624.0]
+    coordinate: [496, 664.0]
     rotation: 0
     state: disabled
 - name: freq_xlating_fir_filter_xxx_0
@@ -452,7 +452,7 @@ blocks:
     alpha7: '1.0'
     alpha8: '1.0'
     alpha9: '1.0'
-    autoscale: 'True'
+    autoscale: 'False'
     axislabels: 'True'
     color1: blue
     color10: dark blue
@@ -469,9 +469,9 @@ blocks:
     entags: 'True'
     grid: 'False'
     gui_hint: ''
-    label1: Signal 1
+    label1: BinarySliced
     label10: Signal 10
-    label2: Signal 2
+    label2: QuadDemod
     label3: Signal 3
     label4: Signal 4
     label5: Signal 5
@@ -491,8 +491,8 @@ blocks:
     marker8: '-1'
     marker9: '-1'
     name: '""'
-    nconnections: '1'
-    size: 1024*1024
+    nconnections: '2'
+    size: 1024*100
     srate: samp_rate
     stemplot: 'False'
     style1: '1'
@@ -508,7 +508,7 @@ blocks:
     tr_chan: '0'
     tr_delay: '0'
     tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_mode: qtgui.TRIG_MODE_AUTO
     tr_slope: qtgui.TRIG_SLOPE_POS
     tr_tag: '""'
     type: float
@@ -549,7 +549,7 @@ blocks:
     alpha7: '1.0'
     alpha8: '1.0'
     alpha9: '1.0'
-    autoscale: 'False'
+    autoscale: 'True'
     axislabels: 'True'
     color1: blue
     color10: dark blue
@@ -587,9 +587,9 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '""'
+    name: '"symbolsynced"'
     nconnections: '1'
-    size: 1024*10
+    size: '1024'
     srate: samp_rate
     stemplot: 'False'
     style1: '1'
@@ -630,7 +630,7 @@ blocks:
     bus_structure: null
     coordinate: [840, 524.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: qtgui_time_sink_x_2
   id: qtgui_time_sink_x
   parameters:
@@ -702,7 +702,7 @@ blocks:
     tr_chan: '0'
     tr_delay: '0'
     tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_mode: qtgui.TRIG_MODE_AUTO
     tr_slope: qtgui.TRIG_SLOPE_POS
     tr_tag: '""'
     type: float
@@ -725,22 +725,22 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [664, 404.0]
+    coordinate: [696, 428.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: root_raised_cosine_filter_0
   id: root_raised_cosine_filter
   parameters:
     affinity: ''
     alias: ''
-    alpha: '0.35'
+    alpha: expected_ted_gain
     comment: ''
     decim: '1'
     gain: '1'
     interp: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
-    ntaps: 11*samp_rate
+    ntaps: '4096'
     samp_rate: samp_rate
     sym_rate: symbol_rate
     type: fir_filter_fff
@@ -748,12 +748,13 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [264, 636.0]
+    coordinate: [240, 612.0]
     rotation: 0
-    state: disabled
+    state: enabled
 
 connections:
 - [analog_quadrature_demod_cf_1, '0', digital_binary_slicer_fb_0, '0']
+- [analog_quadrature_demod_cf_1, '0', qtgui_time_sink_x_0, '1']
 - [analog_quadrature_demod_cf_1, '0', qtgui_time_sink_x_2, '0']
 - [analog_quadrature_demod_cf_1, '0', root_raised_cosine_filter_0, '0']
 - [analog_simple_squelch_cc_1, '0', analog_quadrature_demod_cf_1, '0']
@@ -765,9 +766,8 @@ connections:
 - [blocks_throttle2_0, '0', qtgui_sink_x_0, '0']
 - [blocks_uchar_to_float_0, '0', qtgui_time_sink_x_0, '0']
 - [digital_binary_slicer_fb_0, '0', blocks_uchar_to_float_0, '0']
-- [digital_symbol_sync_xx_0, '0', qtgui_time_sink_x_1, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', analog_simple_squelch_cc_1, '0']
-- [root_raised_cosine_filter_0, '0', digital_symbol_sync_xx_0, '0']
+- [root_raised_cosine_filter_0, '0', qtgui_time_sink_x_1, '0']
 
 metadata:
   file_format: 1

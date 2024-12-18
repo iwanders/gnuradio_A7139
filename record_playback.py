@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Not titled yet
+# Title: Analysis
 # GNU Radio version: 3.10.7.0
 
 from packaging.version import Version as StrictVersion
@@ -36,9 +36,9 @@ import sip
 class record_playback(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
+        gr.top_block.__init__(self, "Analysis", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Not titled yet")
+        self.setWindowTitle("Analysis")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -71,7 +71,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         ##################################################
         self.symbol_rate = symbol_rate = 10000
         self.samp_rate = samp_rate = 2048000
-        self.squelch_threshold_db = squelch_threshold_db = -2
+        self.squelch_threshold_db = squelch_threshold_db = -3
         self.squelch_alpha = squelch_alpha = 0.74
         self.sps = sps = samp_rate / symbol_rate
         self.fsk_deviation_hz = fsk_deviation_hz = 20e3
@@ -82,31 +82,42 @@ class record_playback(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
-        self._squelch_threshold_db_range = Range(-100, 100, 1, -2, 200)
+        self._squelch_threshold_db_range = Range(-100, 100, 1, -3, 200)
         self._squelch_threshold_db_win = RangeWidget(self._squelch_threshold_db_range, self.set_squelch_threshold_db, "'squelch_threshold_db'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._squelch_threshold_db_win)
         self._squelch_alpha_range = Range(0, 1.0, 0.0000001, 0.74, 200)
         self._squelch_alpha_win = RangeWidget(self._squelch_alpha_range, self.set_squelch_alpha, "'squelch_alpha'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._squelch_alpha_win)
-        self.qtgui_time_sink_x_2 = qtgui.time_sink_f(
-            (1024*1024), #size
+        self._expected_ted_gain_range = Range(0.01, 1.0, 0.01, 1.0, 200)
+        self._expected_ted_gain_win = RangeWidget(self._expected_ted_gain_range, self.set_expected_ted_gain, "'expected_ted_gain'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._expected_ted_gain_win)
+        self.root_raised_cosine_filter_0 = filter.fir_filter_fff(
+            1,
+            firdes.root_raised_cosine(
+                1,
+                samp_rate,
+                symbol_rate,
+                expected_ted_gain,
+                4096))
+        self.qtgui_time_sink_x_1 = qtgui.time_sink_f(
+            1024, #size
             samp_rate, #samp_rate
-            'rootraised', #name
+            "symbolsynced", #name
             1, #number of inputs
             None # parent
         )
-        self.qtgui_time_sink_x_2.set_update_time(0.10)
-        self.qtgui_time_sink_x_2.set_y_axis(-1, 1)
+        self.qtgui_time_sink_x_1.set_update_time(0.10)
+        self.qtgui_time_sink_x_1.set_y_axis(-1, 1)
 
-        self.qtgui_time_sink_x_2.set_y_label('Amplitude', "")
+        self.qtgui_time_sink_x_1.set_y_label('Amplitude', "")
 
-        self.qtgui_time_sink_x_2.enable_tags(True)
-        self.qtgui_time_sink_x_2.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_2.enable_autoscale(True)
-        self.qtgui_time_sink_x_2.enable_grid(False)
-        self.qtgui_time_sink_x_2.enable_axis_labels(True)
-        self.qtgui_time_sink_x_2.enable_control_panel(False)
-        self.qtgui_time_sink_x_2.enable_stem_plot(False)
+        self.qtgui_time_sink_x_1.enable_tags(True)
+        self.qtgui_time_sink_x_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_1.enable_autoscale(True)
+        self.qtgui_time_sink_x_1.enable_grid(False)
+        self.qtgui_time_sink_x_1.enable_axis_labels(True)
+        self.qtgui_time_sink_x_1.enable_control_panel(False)
+        self.qtgui_time_sink_x_1.enable_stem_plot(False)
 
 
         labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
@@ -125,22 +136,22 @@ class record_playback(gr.top_block, Qt.QWidget):
 
         for i in range(1):
             if len(labels[i]) == 0:
-                self.qtgui_time_sink_x_2.set_line_label(i, "Data {0}".format(i))
+                self.qtgui_time_sink_x_1.set_line_label(i, "Data {0}".format(i))
             else:
-                self.qtgui_time_sink_x_2.set_line_label(i, labels[i])
-            self.qtgui_time_sink_x_2.set_line_width(i, widths[i])
-            self.qtgui_time_sink_x_2.set_line_color(i, colors[i])
-            self.qtgui_time_sink_x_2.set_line_style(i, styles[i])
-            self.qtgui_time_sink_x_2.set_line_marker(i, markers[i])
-            self.qtgui_time_sink_x_2.set_line_alpha(i, alphas[i])
+                self.qtgui_time_sink_x_1.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_1.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_1.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_1.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_1.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_1.set_line_alpha(i, alphas[i])
 
-        self._qtgui_time_sink_x_2_win = sip.wrapinstance(self.qtgui_time_sink_x_2.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_time_sink_x_2_win)
+        self._qtgui_time_sink_x_1_win = sip.wrapinstance(self.qtgui_time_sink_x_1.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_time_sink_x_1_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_f(
-            (1024*1024), #size
+            (1024*100), #size
             samp_rate, #samp_rate
             "", #name
-            1, #number of inputs
+            2, #number of inputs
             None # parent
         )
         self.qtgui_time_sink_x_0.set_update_time(0.10)
@@ -149,15 +160,15 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_0.set_y_label('Amplitude', "")
 
         self.qtgui_time_sink_x_0.enable_tags(True)
-        self.qtgui_time_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_0.enable_autoscale(True)
+        self.qtgui_time_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_AUTO, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_0.enable_autoscale(False)
         self.qtgui_time_sink_x_0.enable_grid(False)
         self.qtgui_time_sink_x_0.enable_axis_labels(True)
         self.qtgui_time_sink_x_0.enable_control_panel(False)
         self.qtgui_time_sink_x_0.enable_stem_plot(False)
 
 
-        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
+        labels = ['BinarySliced', 'QuadDemod', 'Signal 3', 'Signal 4', 'Signal 5',
             'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -171,7 +182,7 @@ class record_playback(gr.top_block, Qt.QWidget):
             -1, -1, -1, -1, -1]
 
 
-        for i in range(1):
+        for i in range(2):
             if len(labels[i]) == 0:
                 self.qtgui_time_sink_x_0.set_line_label(i, "Data {0}".format(i))
             else:
@@ -203,15 +214,11 @@ class record_playback(gr.top_block, Qt.QWidget):
 
         self.top_layout.addWidget(self._qtgui_sink_x_0_win)
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(1, firdes.complex_band_pass(1.0, samp_rate, fsk_deviation_hz/2 - bandpass_filter_width, fsk_deviation_hz/2 + bandpass_filter_width, bandpass_filter_width), (434100000 + 0.07e6), samp_rate)
-        self._expected_ted_gain_range = Range(0, 1.0, 0.01, 1.0, 200)
-        self._expected_ted_gain_win = RangeWidget(self._expected_ted_gain_range, self.set_expected_ted_gain, "'expected_ted_gain'", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._expected_ted_gain_win)
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
         self.blocks_uchar_to_float_0 = blocks.uchar_to_float()
         self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "time" == "auto" else max( int(float(1) * samp_rate) if "time" == "time" else int(1), 1) )
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*1, (int(samp_rate*1.5)))
         self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.info)
-        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, (int(samp_rate*1.0)))
         self.blocks_file_meta_source_0 = blocks.file_meta_source('/tmp/capture_query.grcbin', True, False, '/tmp/capture_query.grcbin')
         self.analog_simple_squelch_cc_1 = analog.simple_squelch_cc(squelch_threshold_db, squelch_alpha)
         self.analog_quadrature_demod_cf_1 = analog.quadrature_demod_cf((samp_rate/(2*math.pi*fsk_deviation_hz)))
@@ -221,16 +228,17 @@ class record_playback(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.analog_quadrature_demod_cf_1, 0), (self.digital_binary_slicer_fb_0, 0))
-        self.connect((self.analog_quadrature_demod_cf_1, 0), (self.qtgui_time_sink_x_2, 0))
+        self.connect((self.analog_quadrature_demod_cf_1, 0), (self.qtgui_time_sink_x_0, 1))
+        self.connect((self.analog_quadrature_demod_cf_1, 0), (self.root_raised_cosine_filter_0, 0))
         self.connect((self.analog_simple_squelch_cc_1, 0), (self.analog_quadrature_demod_cf_1, 0))
         self.connect((self.blocks_file_meta_source_0, 0), (self.blocks_skiphead_0, 0))
-        self.connect((self.blocks_head_0, 0), (self.blocks_throttle2_0, 0))
-        self.connect((self.blocks_skiphead_0, 0), (self.blocks_head_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_uchar_to_float_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_uchar_to_float_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.analog_simple_squelch_cc_1, 0))
+        self.connect((self.root_raised_cosine_filter_0, 0), (self.qtgui_time_sink_x_1, 0))
 
 
     def closeEvent(self, event):
@@ -247,6 +255,7 @@ class record_playback(gr.top_block, Qt.QWidget):
     def set_symbol_rate(self, symbol_rate):
         self.symbol_rate = symbol_rate
         self.set_sps(self.samp_rate / self.symbol_rate)
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.symbol_rate, self.expected_ted_gain, 4096))
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -260,7 +269,8 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1.0, self.samp_rate, self.fsk_deviation_hz/2 - self.bandpass_filter_width, self.fsk_deviation_hz/2 + self.bandpass_filter_width, self.bandpass_filter_width))
         self.qtgui_sink_x_0.set_frequency_range(443920000, self.samp_rate)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_2.set_samp_rate(self.samp_rate)
+        self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.symbol_rate, self.expected_ted_gain, 4096))
 
     def get_squelch_threshold_db(self):
         return self.squelch_threshold_db
@@ -295,6 +305,7 @@ class record_playback(gr.top_block, Qt.QWidget):
 
     def set_expected_ted_gain(self, expected_ted_gain):
         self.expected_ted_gain = expected_ted_gain
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.symbol_rate, self.expected_ted_gain, 4096))
 
     def get_bandpass_filter_width(self):
         return self.bandpass_filter_width

@@ -25,3 +25,7 @@ The [rtl_433](https://triq.org/rtl_433/) project also looks interesting:
 `nix run current#rtl_433 -- -s 2048000  -X "n=dongle,modulation=FSK_MC_ZEROBIT,s=100,l=100,reset=1000"`
 
 
+
+
+https://wiki.gnuradio.org/index.php?title=Symbol_Sync
+
