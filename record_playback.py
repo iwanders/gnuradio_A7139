@@ -152,7 +152,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self._qtgui_time_sink_x_3_win = sip.wrapinstance(self.qtgui_time_sink_x_3.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_time_sink_x_3_win)
         self.qtgui_time_sink_x_2_0 = qtgui.time_sink_f(
-            (1024*10), #size
+            1024, #size
             symbol_rate * 2, #samp_rate
             "error", #name
             1, #number of inputs
@@ -200,10 +200,10 @@ class record_playback(gr.top_block, Qt.QWidget):
         self._qtgui_time_sink_x_2_0_win = sip.wrapinstance(self.qtgui_time_sink_x_2_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_time_sink_x_2_0_win)
         self.qtgui_time_sink_x_2 = qtgui.time_sink_f(
-            (1024*10), #size
+            1024, #size
             symbol_rate * 2, #samp_rate
             "zzzz", #name
-            2, #number of inputs
+            3, #number of inputs
             None # parent
         )
         self.qtgui_time_sink_x_2.set_update_time(0.01)
@@ -234,7 +234,7 @@ class record_playback(gr.top_block, Qt.QWidget):
             -1, -1, -1, -1, -1]
 
 
-        for i in range(2):
+        for i in range(3):
             if len(labels[i]) == 0:
                 self.qtgui_time_sink_x_2.set_line_label(i, "Data {0}".format(i))
             else:
@@ -374,12 +374,16 @@ class record_playback(gr.top_block, Qt.QWidget):
             digital.IR_MMSE_8TAP,
             128,
             [])
+        self.digital_binary_slicer_fb_0_0 = digital.binary_slicer_fb()
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
+        self.blocks_uchar_to_float_0_0 = blocks.uchar_to_float()
         self.blocks_uchar_to_float_0 = blocks.uchar_to_float()
         self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "time" == "auto" else max( int(float(1) * samp_rate) if "time" == "time" else int(1), 1) )
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*1, (int(samp_rate*1.5)))
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(100)
         self.blocks_moving_average_xx_0 = blocks.moving_average_ff(int(sps), 0.1, 4000, 1)
         self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.info)
+        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, (int(samp_rate*1.0)))
         self.blocks_file_meta_source_0 = blocks.file_meta_source('/tmp/capture_query.grcbin', True, False, '/tmp/capture_query.grcbin')
         self.analog_simple_squelch_cc_1 = analog.simple_squelch_cc(squelch_threshold_db, squelch_alpha)
         self.analog_quadrature_demod_cf_1 = analog.quadrature_demod_cf((samp_rate/(2*math.pi*fsk_deviation_hz)))
@@ -393,17 +397,22 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.connect((self.analog_quadrature_demod_cf_1, 0), (self.root_raised_cosine_filter_0, 0))
         self.connect((self.analog_simple_squelch_cc_1, 0), (self.analog_quadrature_demod_cf_1, 0))
         self.connect((self.blocks_file_meta_source_0, 0), (self.blocks_skiphead_0, 0))
+        self.connect((self.blocks_head_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_moving_average_xx_0, 0), (self.digital_symbol_sync_xx_1, 0))
-        self.connect((self.blocks_skiphead_0, 0), (self.blocks_throttle2_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_time_sink_x_2, 2))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_head_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_uchar_to_float_0, 0), (self.qtgui_time_sink_x_0, 0))
+        self.connect((self.blocks_uchar_to_float_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_uchar_to_float_0, 0))
-        self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 1))
+        self.connect((self.digital_binary_slicer_fb_0_0, 0), (self.blocks_uchar_to_float_0_0, 0))
+        self.connect((self.digital_symbol_sync_xx_1, 0), (self.digital_binary_slicer_fb_0_0, 0))
         self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 0))
+        self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 1))
         self.connect((self.digital_symbol_sync_xx_1, 1), (self.qtgui_time_sink_x_2_0, 0))
-        self.connect((self.digital_symbol_sync_xx_1, 2), (self.qtgui_time_sink_x_3, 0))
         self.connect((self.digital_symbol_sync_xx_1, 3), (self.qtgui_time_sink_x_3, 1))
+        self.connect((self.digital_symbol_sync_xx_1, 2), (self.qtgui_time_sink_x_3, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.analog_simple_squelch_cc_1, 0))
         self.connect((self.root_raised_cosine_filter_0, 0), (self.blocks_moving_average_xx_0, 0))
         self.connect((self.root_raised_cosine_filter_0, 0), (self.qtgui_time_sink_x_1, 0))

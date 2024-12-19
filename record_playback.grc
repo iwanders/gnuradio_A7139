@@ -248,7 +248,7 @@ blocks:
     bus_structure: null
     coordinate: [56, 524.0]
     rotation: 0
-    state: bypassed
+    state: enabled
 - name: blocks_message_debug_0
   id: blocks_message_debug
   parameters:
@@ -284,6 +284,24 @@ blocks:
     coordinate: [344, 732.0]
     rotation: 0
     state: enabled
+- name: blocks_multiply_const_vxx_0
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '100'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1344, 908.0]
+    rotation: 0
+    state: true
 - name: blocks_null_sink_0
   id: blocks_null_sink
   parameters:
@@ -355,6 +373,21 @@ blocks:
     coordinate: [1040, 352.0]
     rotation: 0
     state: true
+- name: blocks_uchar_to_float_0_0
+  id: blocks_uchar_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1352, 784.0]
+    rotation: 0
+    state: true
 - name: digital_binary_slicer_fb_0
   id: digital_binary_slicer_fb
   parameters:
@@ -368,6 +401,21 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [912, 288.0]
+    rotation: 0
+    state: enabled
+- name: digital_binary_slicer_fb_0_0
+  id: digital_binary_slicer_fb
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1200, 752.0]
     rotation: 0
     state: enabled
 - name: digital_correlate_access_code_tag_xx_0
@@ -770,8 +818,8 @@ blocks:
     marker8: '-1'
     marker9: '-1'
     name: '"zzzz"'
-    nconnections: '2'
-    size: 1024*10
+    nconnections: '3'
+    size: '1024'
     srate: symbol_rate * 2
     stemplot: 'False'
     style1: '1'
@@ -868,7 +916,7 @@ blocks:
     marker9: '-1'
     name: '"error"'
     nconnections: '1'
-    size: 1024*10
+    size: '1024'
     srate: symbol_rate * 2
     stemplot: 'False'
     style1: '1'
@@ -1004,7 +1052,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [888, 916.0]
+    coordinate: [872, 972.0]
     rotation: 0
     state: true
 - name: root_raised_cosine_filter_0
@@ -1040,12 +1088,16 @@ connections:
 - [blocks_file_meta_source_0, '0', blocks_skiphead_0, '0']
 - [blocks_head_0, '0', blocks_throttle2_0, '0']
 - [blocks_moving_average_xx_0, '0', digital_symbol_sync_xx_1, '0']
+- [blocks_multiply_const_vxx_0, '0', qtgui_time_sink_x_2, '2']
 - [blocks_skiphead_0, '0', blocks_head_0, '0']
 - [blocks_throttle2_0, '0', freq_xlating_fir_filter_xxx_0, '0']
 - [blocks_throttle2_0, '0', qtgui_sink_x_0, '0']
 - [blocks_uchar_to_float_0, '0', qtgui_time_sink_x_0, '0']
+- [blocks_uchar_to_float_0_0, '0', blocks_multiply_const_vxx_0, '0']
 - [digital_binary_slicer_fb_0, '0', blocks_uchar_to_float_0, '0']
+- [digital_binary_slicer_fb_0_0, '0', blocks_uchar_to_float_0_0, '0']
 - [digital_symbol_sync_xx_1, '0', blocks_null_sink_0, '0']
+- [digital_symbol_sync_xx_1, '0', digital_binary_slicer_fb_0_0, '0']
 - [digital_symbol_sync_xx_1, '0', qtgui_time_sink_x_2, '0']
 - [digital_symbol_sync_xx_1, '0', qtgui_time_sink_x_2, '1']
 - [digital_symbol_sync_xx_1, '1', qtgui_time_sink_x_2_0, '0']
