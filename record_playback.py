@@ -71,34 +71,134 @@ class record_playback(gr.top_block, Qt.QWidget):
         ##################################################
         self.symbol_rate = symbol_rate = 10000
         self.samp_rate = samp_rate = 2048000
+        self.sync_bw = sync_bw = 0.05
         self.squelch_threshold_db = squelch_threshold_db = -3
         self.squelch_alpha = squelch_alpha = 0.74
         self.sps = sps = samp_rate / symbol_rate
         self.fsk_deviation_hz = fsk_deviation_hz = 20e3
-        self.expected_ted_gain = expected_ted_gain = 0.05
+        self.expected_ted_gain = expected_ted_gain = 0.93
         self.bandpass_filter_width = bandpass_filter_width = 60e3
 
         ##################################################
         # Blocks
         ##################################################
 
+        self._sync_bw_range = Range(0.01, 1.0, 0.01, 0.05, 200)
+        self._sync_bw_win = RangeWidget(self._sync_bw_range, self.set_sync_bw, "'sync_bw'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._sync_bw_win)
         self._squelch_threshold_db_range = Range(-100, 100, 1, -3, 200)
         self._squelch_threshold_db_win = RangeWidget(self._squelch_threshold_db_range, self.set_squelch_threshold_db, "'squelch_threshold_db'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._squelch_threshold_db_win)
         self._squelch_alpha_range = Range(0, 1.0, 0.0000001, 0.74, 200)
         self._squelch_alpha_win = RangeWidget(self._squelch_alpha_range, self.set_squelch_alpha, "'squelch_alpha'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._squelch_alpha_win)
-        self._expected_ted_gain_range = Range(0.01, 1.0, 0.01, 0.05, 200)
+        self._expected_ted_gain_range = Range(0.01, 1.0, 0.01, 0.93, 200)
         self._expected_ted_gain_win = RangeWidget(self._expected_ted_gain_range, self.set_expected_ted_gain, "'expected_ted_gain'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._expected_ted_gain_win)
         self.root_raised_cosine_filter_0 = filter.fir_filter_fff(
             1,
             firdes.root_raised_cosine(
-                1,
+                0.5,
                 (samp_rate / 4),
                 symbol_rate,
                 0.98,
                 512))
+        self.qtgui_time_sink_x_3 = qtgui.time_sink_f(
+            (1024 * 10), #size
+            symbol_rate * 2, #samp_rate
+            "tinst/avg", #name
+            2, #number of inputs
+            None # parent
+        )
+        self.qtgui_time_sink_x_3.set_update_time(0.10)
+        self.qtgui_time_sink_x_3.set_y_axis(sps - 0.1 * sps, sps + 0.1 * sps)
+
+        self.qtgui_time_sink_x_3.set_y_label('Amplitude', "")
+
+        self.qtgui_time_sink_x_3.enable_tags(True)
+        self.qtgui_time_sink_x_3.set_trigger_mode(qtgui.TRIG_MODE_AUTO, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_3.enable_autoscale(False)
+        self.qtgui_time_sink_x_3.enable_grid(False)
+        self.qtgui_time_sink_x_3.enable_axis_labels(True)
+        self.qtgui_time_sink_x_3.enable_control_panel(False)
+        self.qtgui_time_sink_x_3.enable_stem_plot(False)
+
+
+        labels = ['inst', 'avg', 'Signal 3', 'Signal 4', 'Signal 5',
+            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ['blue', 'red', 'green', 'black', 'cyan',
+            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+        styles = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        markers = [-1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1]
+
+
+        for i in range(2):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_3.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_3.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_3.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_3.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_3.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_3.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_3.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_3_win = sip.wrapinstance(self.qtgui_time_sink_x_3.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_time_sink_x_3_win)
+        self.qtgui_time_sink_x_2_0 = qtgui.time_sink_f(
+            (1024*10), #size
+            symbol_rate * 2, #samp_rate
+            "error", #name
+            1, #number of inputs
+            None # parent
+        )
+        self.qtgui_time_sink_x_2_0.set_update_time(0.01)
+        self.qtgui_time_sink_x_2_0.set_y_axis(-1, 1)
+
+        self.qtgui_time_sink_x_2_0.set_y_label('Amplitude', "")
+
+        self.qtgui_time_sink_x_2_0.enable_tags(True)
+        self.qtgui_time_sink_x_2_0.set_trigger_mode(qtgui.TRIG_MODE_AUTO, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_2_0.enable_autoscale(False)
+        self.qtgui_time_sink_x_2_0.enable_grid(False)
+        self.qtgui_time_sink_x_2_0.enable_axis_labels(True)
+        self.qtgui_time_sink_x_2_0.enable_control_panel(False)
+        self.qtgui_time_sink_x_2_0.enable_stem_plot(False)
+
+
+        labels = ['error', 'error', 'Signal 3', 'Signal 4', 'Signal 5',
+            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ['blue', 'red', 'green', 'black', 'cyan',
+            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+        styles = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        markers = [0, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1]
+
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_2_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_2_0.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_2_0.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_2_0.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_2_0.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_2_0.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_2_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_2_0_win = sip.wrapinstance(self.qtgui_time_sink_x_2_0.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_time_sink_x_2_0_win)
         self.qtgui_time_sink_x_2 = qtgui.time_sink_f(
             (1024*10), #size
             symbol_rate * 2, #samp_rate
@@ -120,7 +220,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_2.enable_stem_plot(False)
 
 
-        labels = ['out', 'error', 'Signal 3', 'Signal 4', 'Signal 5',
+        labels = ['symbols', 'error', 'Signal 3', 'Signal 4', 'Signal 5',
             'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -265,11 +365,11 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.digital_symbol_sync_xx_1 = digital.symbol_sync_ff(
             digital.TED_EARLY_LATE,
             sps,
-            0.04 ,
+            sync_bw,
             1.0,
             expected_ted_gain,
-            1.5,
-            2,
+            5,
+            1,
             digital.constellation_bpsk().base(),
             digital.IR_MMSE_8TAP,
             128,
@@ -299,8 +399,11 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_throttle2_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_uchar_to_float_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_uchar_to_float_0, 0))
-        self.connect((self.digital_symbol_sync_xx_1, 1), (self.qtgui_time_sink_x_2, 1))
+        self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 1))
         self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 0))
+        self.connect((self.digital_symbol_sync_xx_1, 1), (self.qtgui_time_sink_x_2_0, 0))
+        self.connect((self.digital_symbol_sync_xx_1, 2), (self.qtgui_time_sink_x_3, 0))
+        self.connect((self.digital_symbol_sync_xx_1, 3), (self.qtgui_time_sink_x_3, 1))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.analog_simple_squelch_cc_1, 0))
         self.connect((self.root_raised_cosine_filter_0, 0), (self.blocks_moving_average_xx_0, 0))
         self.connect((self.root_raised_cosine_filter_0, 0), (self.qtgui_time_sink_x_1, 0))
@@ -321,7 +424,9 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.symbol_rate = symbol_rate
         self.set_sps(self.samp_rate / self.symbol_rate)
         self.qtgui_time_sink_x_2.set_samp_rate(self.symbol_rate * 2)
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, (self.samp_rate / 4), self.symbol_rate, 0.98, 512))
+        self.qtgui_time_sink_x_2_0.set_samp_rate(self.symbol_rate * 2)
+        self.qtgui_time_sink_x_3.set_samp_rate(self.symbol_rate * 2)
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(0.5, (self.samp_rate / 4), self.symbol_rate, 0.98, 512))
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -336,7 +441,14 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.qtgui_sink_x_0.set_frequency_range(443920000, self.samp_rate)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, (self.samp_rate / 4), self.symbol_rate, 0.98, 512))
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(0.5, (self.samp_rate / 4), self.symbol_rate, 0.98, 512))
+
+    def get_sync_bw(self):
+        return self.sync_bw
+
+    def set_sync_bw(self, sync_bw):
+        self.sync_bw = sync_bw
+        self.digital_symbol_sync_xx_1.set_loop_bandwidth(self.sync_bw)
 
     def get_squelch_threshold_db(self):
         return self.squelch_threshold_db
@@ -358,6 +470,7 @@ class record_playback(gr.top_block, Qt.QWidget):
     def set_sps(self, sps):
         self.sps = sps
         self.blocks_moving_average_xx_0.set_length_and_scale(int(self.sps), 0.1)
+        self.qtgui_time_sink_x_3.set_y_axis(self.sps - 0.1 * self.sps, self.sps + 0.1 * self.sps)
 
     def get_fsk_deviation_hz(self):
         return self.fsk_deviation_hz
