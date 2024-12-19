@@ -29,3 +29,6 @@ The [rtl_433](https://triq.org/rtl_433/) project also looks interesting:
 
 https://wiki.gnuradio.org/index.php?title=Symbol_Sync
 
+
+https://wiki.gnuradio.org/index.php?title=QPSK_Mod_and_Demod#7.6._Recovering_Timing
+
