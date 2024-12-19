@@ -57,7 +57,7 @@ blocks:
     start: '0.01'
     step: '0.01'
     stop: '1.0'
-    value: '0.03'
+    value: '0.05'
     widget: counter_slider
   states:
     bus_sink: false
@@ -227,7 +227,7 @@ blocks:
     bus_structure: null
     coordinate: [56, 524.0]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: blocks_message_debug_0
   id: blocks_message_debug
   parameters:
@@ -403,8 +403,8 @@ blocks:
     comment: ''
     constellation: digital.constellation_bpsk().base()
     damping: '1.0'
-    loop_bw: '0.04'
-    max_dev: '200'
+    loop_bw: '0.04 '
+    max_dev: '1.5'
     maxoutbuf: '0'
     minoutbuf: '0'
     nfilters: '128'
@@ -419,7 +419,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [552, 792.0]
+    coordinate: [568, 808.0]
     rotation: 0
     state: enabled
 - name: freq_xlating_fir_filter_xxx_0
@@ -727,9 +727,9 @@ blocks:
     entags: 'True'
     grid: 'False'
     gui_hint: ''
-    label1: Signal 1
+    label1: out
     label10: Signal 10
-    label2: Signal 2
+    label2: error
     label3: Signal 3
     label4: Signal 4
     label5: Signal 5
@@ -738,7 +738,7 @@ blocks:
     label8: Signal 8
     label9: Signal 9
     legend: 'True'
-    marker1: '-1'
+    marker1: '0'
     marker10: '-1'
     marker2: '-1'
     marker3: '-1'
@@ -750,7 +750,7 @@ blocks:
     marker9: '-1'
     name: '"zzzz"'
     nconnections: '2'
-    size: 1024*100
+    size: 1024*10
     srate: symbol_rate * 2
     stemplot: 'False'
     style1: '1'
@@ -770,7 +770,7 @@ blocks:
     tr_slope: qtgui.TRIG_SLOPE_POS
     tr_tag: '""'
     type: float
-    update_time: '0.10'
+    update_time: '0.01'
     width1: '1'
     width10: '1'
     width2: '1'

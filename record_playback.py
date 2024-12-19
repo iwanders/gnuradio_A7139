@@ -75,7 +75,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.squelch_alpha = squelch_alpha = 0.74
         self.sps = sps = samp_rate / symbol_rate
         self.fsk_deviation_hz = fsk_deviation_hz = 20e3
-        self.expected_ted_gain = expected_ted_gain = 0.03
+        self.expected_ted_gain = expected_ted_gain = 0.05
         self.bandpass_filter_width = bandpass_filter_width = 60e3
 
         ##################################################
@@ -88,7 +88,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self._squelch_alpha_range = Range(0, 1.0, 0.0000001, 0.74, 200)
         self._squelch_alpha_win = RangeWidget(self._squelch_alpha_range, self.set_squelch_alpha, "'squelch_alpha'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._squelch_alpha_win)
-        self._expected_ted_gain_range = Range(0.01, 1.0, 0.01, 0.03, 200)
+        self._expected_ted_gain_range = Range(0.01, 1.0, 0.01, 0.05, 200)
         self._expected_ted_gain_win = RangeWidget(self._expected_ted_gain_range, self.set_expected_ted_gain, "'expected_ted_gain'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._expected_ted_gain_win)
         self.root_raised_cosine_filter_0 = filter.fir_filter_fff(
@@ -100,13 +100,13 @@ class record_playback(gr.top_block, Qt.QWidget):
                 0.98,
                 512))
         self.qtgui_time_sink_x_2 = qtgui.time_sink_f(
-            (1024*100), #size
+            (1024*10), #size
             symbol_rate * 2, #samp_rate
             "zzzz", #name
             2, #number of inputs
             None # parent
         )
-        self.qtgui_time_sink_x_2.set_update_time(0.10)
+        self.qtgui_time_sink_x_2.set_update_time(0.01)
         self.qtgui_time_sink_x_2.set_y_axis(-1, 1)
 
         self.qtgui_time_sink_x_2.set_y_label('Amplitude', "")
@@ -120,7 +120,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_2.enable_stem_plot(False)
 
 
-        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
+        labels = ['out', 'error', 'Signal 3', 'Signal 4', 'Signal 5',
             'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -130,7 +130,7 @@ class record_playback(gr.top_block, Qt.QWidget):
             1.0, 1.0, 1.0, 1.0, 1.0]
         styles = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
-        markers = [-1, -1, -1, -1, -1,
+        markers = [0, -1, -1, -1, -1,
             -1, -1, -1, -1, -1]
 
 
@@ -265,10 +265,10 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.digital_symbol_sync_xx_1 = digital.symbol_sync_ff(
             digital.TED_EARLY_LATE,
             sps,
-            0.04,
+            0.04 ,
             1.0,
             expected_ted_gain,
-            200,
+            1.5,
             2,
             digital.constellation_bpsk().base(),
             digital.IR_MMSE_8TAP,
@@ -280,7 +280,6 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*1, (int(samp_rate*1.5)))
         self.blocks_moving_average_xx_0 = blocks.moving_average_ff(int(sps), 0.1, 4000, 1)
         self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.info)
-        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, (int(samp_rate*1.0)))
         self.blocks_file_meta_source_0 = blocks.file_meta_source('/tmp/capture_query.grcbin', True, False, '/tmp/capture_query.grcbin')
         self.analog_simple_squelch_cc_1 = analog.simple_squelch_cc(squelch_threshold_db, squelch_alpha)
         self.analog_quadrature_demod_cf_1 = analog.quadrature_demod_cf((samp_rate/(2*math.pi*fsk_deviation_hz)))
@@ -294,9 +293,8 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.connect((self.analog_quadrature_demod_cf_1, 0), (self.root_raised_cosine_filter_0, 0))
         self.connect((self.analog_simple_squelch_cc_1, 0), (self.analog_quadrature_demod_cf_1, 0))
         self.connect((self.blocks_file_meta_source_0, 0), (self.blocks_skiphead_0, 0))
-        self.connect((self.blocks_head_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_moving_average_xx_0, 0), (self.digital_symbol_sync_xx_1, 0))
-        self.connect((self.blocks_skiphead_0, 0), (self.blocks_head_0, 0))
+        self.connect((self.blocks_skiphead_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_uchar_to_float_0, 0), (self.qtgui_time_sink_x_0, 0))
