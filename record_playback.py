@@ -364,7 +364,7 @@ class record_playback(gr.top_block, Qt.QWidget):
 
         self.top_layout.addWidget(self._qtgui_sink_x_0_win)
         self.pdu_tagged_stream_to_pdu_0 = pdu.tagged_stream_to_pdu(gr.types.byte_t, 'packet_len')
-        self.network_udp_sink_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 2003, 0, 1472, False)
+        self.network_udp_sink_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 2003, 0, 8, False)
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(1, firdes.complex_band_pass(1.0, samp_rate, fsk_deviation_hz/2 - bandpass_filter_width, fsk_deviation_hz/2 + bandpass_filter_width, bandpass_filter_width), (434100000 + 0.07e6), samp_rate)
         self.digital_symbol_sync_xx_1 = digital.symbol_sync_ff(
             digital.TED_EARLY_LATE,
@@ -420,8 +420,8 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.connect((self.digital_binary_slicer_fb_0_0, 0), (self.blocks_uchar_to_float_0_0, 0))
         self.connect((self.digital_correlate_access_code_xx_ts_0, 0), (self.pdu_tagged_stream_to_pdu_0, 0))
         self.connect((self.digital_symbol_sync_xx_1, 0), (self.digital_binary_slicer_fb_0_0, 0))
-        self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 1))
         self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 0))
+        self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 1))
         self.connect((self.digital_symbol_sync_xx_1, 1), (self.qtgui_time_sink_x_2_0, 0))
         self.connect((self.digital_symbol_sync_xx_1, 3), (self.qtgui_time_sink_x_3, 1))
         self.connect((self.digital_symbol_sync_xx_1, 2), (self.qtgui_time_sink_x_3, 0))

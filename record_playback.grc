@@ -336,7 +336,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1376, 596.0]
+    coordinate: [1416, 588.0]
     rotation: 0
     state: true
 - name: blocks_skiphead_0
@@ -435,7 +435,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1240, 696.0]
+    coordinate: [1144, 728.0]
     rotation: 0
     state: enabled
 - name: digital_correlate_access_code_tag_xx_0
@@ -527,7 +527,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [512, 840.0]
+    coordinate: [576, 784.0]
     rotation: 0
     state: enabled
 - name: freq_xlating_fir_filter_xxx_0
@@ -559,7 +559,7 @@ blocks:
     alias: ''
     comment: ''
     header: '0'
-    payloadsize: '1472'
+    payloadsize: '8'
     port: '2003'
     send_eof: 'False'
     type: byte
@@ -934,7 +934,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [920, 800.0]
+    coordinate: [896, 800.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_2_0
@@ -1128,7 +1128,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [872, 972.0]
+    coordinate: [928, 1028.0]
     rotation: 0
     state: true
 - name: root_raised_cosine_filter_0
