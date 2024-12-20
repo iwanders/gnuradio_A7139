@@ -350,7 +350,7 @@ blocks:
     bus_structure: null
     coordinate: [1512, 588.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: blocks_skiphead_0
   id: blocks_skiphead
   parameters:

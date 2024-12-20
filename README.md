@@ -57,3 +57,7 @@ https://wiki.gnuradio.org/index.php?title=QPSK_Mod_and_Demod#7.6._Recovering_Tim
 probably a crc in there... it would be nice if we could have a 'tags to pdu' block, that starts on the sync word / preamble, and terminates when a crc is valid?
 
 
+Capture the udp stream with
+```
+nc -u -l -k 127.0.0.1 2003 | hexdump -C
+```
