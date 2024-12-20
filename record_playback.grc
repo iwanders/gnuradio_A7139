@@ -78,6 +78,18 @@ blocks:
     coordinate: [424, 12.0]
     rotation: 0
     state: true
+- name: packet_len
+  id: variable
+  parameters:
+    comment: ''
+    value: '5'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1952, 1076.0]
+    rotation: 0
+    state: true
 - name: samp_rate
   id: variable
   parameters:
@@ -256,7 +268,7 @@ blocks:
     alias: ''
     comment: ''
     en_uvec: 'True'
-    log_level: info
+    log_level: trace
   states:
     bus_sink: false
     bus_source: false
@@ -299,7 +311,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1256, 844.0]
+    coordinate: [1096, 860.0]
     rotation: 0
     state: true
 - name: blocks_null_sink_0
@@ -316,7 +328,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1112, 784.0]
+    coordinate: [832, 632.0]
     rotation: 0
     state: disabled
 - name: blocks_repack_bits_bb_0
@@ -336,7 +348,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1416, 588.0]
+    coordinate: [1512, 588.0]
     rotation: 0
     state: true
 - name: blocks_skiphead_0
@@ -405,7 +417,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1376, 768.0]
+    coordinate: [976, 808.0]
     rotation: 0
     state: true
 - name: digital_binary_slicer_fb_0
@@ -435,32 +447,13 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1144, 728.0]
+    coordinate: [920, 744.0]
     rotation: 0
     state: enabled
-- name: digital_correlate_access_code_tag_xx_0
+- name: digital_correlate_access_code_tag_xx_1
   id: digital_correlate_access_code_tag_xx
   parameters:
     access_code: '101010101010'
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    tagname: z
-    threshold: '0'
-    type: byte
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [912, 692.0]
-    rotation: 0
-    state: disabled
-- name: digital_correlate_access_code_xx_ts_0
-  id: digital_correlate_access_code_xx_ts
-  parameters:
-    access_code: '101010'
     affinity: ''
     alias: ''
     comment: ''
@@ -473,7 +466,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1552, 860.0]
+    coordinate: [1096, 644.0]
     rotation: 0
     state: true
 - name: digital_symbol_sync_xx_0
@@ -579,15 +572,43 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    tag: packet_len
+    tag: zzz
     type: byte
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1744, 748.0]
+    coordinate: [1504, 740.0]
     rotation: 0
     state: true
+- name: pdu_tags_to_pdu_x_0
+  id: pdu_tags_to_pdu_x
+  parameters:
+    affinity: ''
+    alias: ''
+    boost_time: 'False'
+    cfg_port: 'False'
+    comment: ''
+    end_tag: EOB
+    eob_alignment: '1'
+    eob_offset: '0'
+    max_pdu_size: '1024'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    prepend: '[]'
+    pub_det: 'False'
+    rate: samp_rate
+    start_tag: SOB
+    start_time: '0.0'
+    tail_size: '0'
+    type: c
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1640, 888.0]
+    rotation: 0
+    state: disabled
 - name: qtgui_sink_x_0
   id: qtgui_sink_x
   parameters:
@@ -934,7 +955,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [896, 800.0]
+    coordinate: [1264, 928.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_2_0
@@ -1031,7 +1052,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1064, 908.0]
+    coordinate: [920, 924.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_3
@@ -1165,7 +1186,6 @@ connections:
 - [blocks_head_0, '0', blocks_throttle2_0, '0']
 - [blocks_moving_average_xx_0, '0', digital_symbol_sync_xx_1, '0']
 - [blocks_multiply_const_vxx_0, '0', qtgui_time_sink_x_2, '2']
-- [blocks_repack_bits_bb_0, '0', digital_correlate_access_code_xx_ts_0, '0']
 - [blocks_repack_bits_bb_0, '0', network_udp_sink_0, '0']
 - [blocks_skiphead_0, '0', blocks_head_0, '0']
 - [blocks_throttle2_0, '0', freq_xlating_fir_filter_xxx_0, '0']
@@ -1173,9 +1193,10 @@ connections:
 - [blocks_uchar_to_float_0, '0', qtgui_time_sink_x_0, '0']
 - [blocks_uchar_to_float_0_0, '0', blocks_multiply_const_vxx_0, '0']
 - [digital_binary_slicer_fb_0, '0', blocks_uchar_to_float_0, '0']
-- [digital_binary_slicer_fb_0_0, '0', blocks_repack_bits_bb_0, '0']
-- [digital_binary_slicer_fb_0_0, '0', blocks_uchar_to_float_0_0, '0']
-- [digital_correlate_access_code_xx_ts_0, '0', pdu_tagged_stream_to_pdu_0, '0']
+- [digital_binary_slicer_fb_0_0, '0', digital_correlate_access_code_tag_xx_1, '0']
+- [digital_correlate_access_code_tag_xx_1, '0', blocks_repack_bits_bb_0, '0']
+- [digital_correlate_access_code_tag_xx_1, '0', blocks_uchar_to_float_0_0, '0']
+- [digital_correlate_access_code_tag_xx_1, '0', pdu_tagged_stream_to_pdu_0, '0']
 - [digital_symbol_sync_xx_1, '0', blocks_null_sink_0, '0']
 - [digital_symbol_sync_xx_1, '0', digital_binary_slicer_fb_0_0, '0']
 - [digital_symbol_sync_xx_1, '0', qtgui_time_sink_x_2, '0']
@@ -1185,6 +1206,7 @@ connections:
 - [digital_symbol_sync_xx_1, '3', qtgui_time_sink_x_3, '1']
 - [freq_xlating_fir_filter_xxx_0, '0', analog_simple_squelch_cc_1, '0']
 - [pdu_tagged_stream_to_pdu_0, pdus, blocks_message_debug_0, log]
+- [pdu_tagged_stream_to_pdu_0, pdus, blocks_message_debug_0, print]
 - [root_raised_cosine_filter_0, '0', blocks_moving_average_xx_0, '0']
 - [root_raised_cosine_filter_0, '0', digital_symbol_sync_xx_0, '0']
 - [root_raised_cosine_filter_0, '0', qtgui_time_sink_x_1, '0']

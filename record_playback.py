@@ -77,6 +77,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.squelch_threshold_db = squelch_threshold_db = -3
         self.squelch_alpha = squelch_alpha = 0.74
         self.sps = sps = samp_rate / symbol_rate
+        self.packet_len = packet_len = 5
         self.fsk_deviation_hz = fsk_deviation_hz = 20e3
         self.expected_ted_gain = expected_ted_gain = 0.93
         self.bandpass_filter_width = bandpass_filter_width = 60e3
@@ -363,7 +364,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.qtgui_sink_x_0.enable_rf_freq(False)
 
         self.top_layout.addWidget(self._qtgui_sink_x_0_win)
-        self.pdu_tagged_stream_to_pdu_0 = pdu.tagged_stream_to_pdu(gr.types.byte_t, 'packet_len')
+        self.pdu_tagged_stream_to_pdu_0 = pdu.tagged_stream_to_pdu(gr.types.byte_t, 'zzz')
         self.network_udp_sink_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 2003, 0, 8, False)
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(1, firdes.complex_band_pass(1.0, samp_rate, fsk_deviation_hz/2 - bandpass_filter_width, fsk_deviation_hz/2 + bandpass_filter_width, bandpass_filter_width), (434100000 + 0.07e6), samp_rate)
         self.digital_symbol_sync_xx_1 = digital.symbol_sync_ff(
@@ -378,8 +379,7 @@ class record_playback(gr.top_block, Qt.QWidget):
             digital.IR_MMSE_8TAP,
             128,
             [])
-        self.digital_correlate_access_code_xx_ts_0 = digital.correlate_access_code_bb_ts('101010',
-          0, 'zzz')
+        self.digital_correlate_access_code_tag_xx_1 = digital.correlate_access_code_tag_bb('101010101010', 0, 'zzz')
         self.digital_binary_slicer_fb_0_0 = digital.binary_slicer_fb()
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
         self.blocks_uchar_to_float_0_0 = blocks.uchar_to_float()
@@ -389,7 +389,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(1, 8, "", False, gr.GR_LSB_FIRST)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(100)
         self.blocks_moving_average_xx_0 = blocks.moving_average_ff(int(sps), 0.1, 4000, 1)
-        self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.info)
+        self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.trace)
         self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, (int(samp_rate*1.0)))
         self.blocks_file_meta_source_0 = blocks.file_meta_source('/tmp/capture_query.grcbin', True, False, '/tmp/capture_query.grcbin')
         self.analog_simple_squelch_cc_1 = analog.simple_squelch_cc(squelch_threshold_db, squelch_alpha)
@@ -400,6 +400,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.msg_connect((self.pdu_tagged_stream_to_pdu_0, 'pdus'), (self.blocks_message_debug_0, 'log'))
+        self.msg_connect((self.pdu_tagged_stream_to_pdu_0, 'pdus'), (self.blocks_message_debug_0, 'print'))
         self.connect((self.analog_quadrature_demod_cf_1, 0), (self.digital_binary_slicer_fb_0, 0))
         self.connect((self.analog_quadrature_demod_cf_1, 0), (self.qtgui_time_sink_x_0, 1))
         self.connect((self.analog_quadrature_demod_cf_1, 0), (self.root_raised_cosine_filter_0, 0))
@@ -408,7 +409,6 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_head_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_moving_average_xx_0, 0), (self.digital_symbol_sync_xx_1, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_time_sink_x_2, 2))
-        self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_correlate_access_code_xx_ts_0, 0))
         self.connect((self.blocks_repack_bits_bb_0, 0), (self.network_udp_sink_0, 0))
         self.connect((self.blocks_skiphead_0, 0), (self.blocks_head_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
@@ -416,9 +416,10 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_uchar_to_float_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.blocks_uchar_to_float_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_uchar_to_float_0, 0))
-        self.connect((self.digital_binary_slicer_fb_0_0, 0), (self.blocks_repack_bits_bb_0, 0))
-        self.connect((self.digital_binary_slicer_fb_0_0, 0), (self.blocks_uchar_to_float_0_0, 0))
-        self.connect((self.digital_correlate_access_code_xx_ts_0, 0), (self.pdu_tagged_stream_to_pdu_0, 0))
+        self.connect((self.digital_binary_slicer_fb_0_0, 0), (self.digital_correlate_access_code_tag_xx_1, 0))
+        self.connect((self.digital_correlate_access_code_tag_xx_1, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.digital_correlate_access_code_tag_xx_1, 0), (self.blocks_uchar_to_float_0_0, 0))
+        self.connect((self.digital_correlate_access_code_tag_xx_1, 0), (self.pdu_tagged_stream_to_pdu_0, 0))
         self.connect((self.digital_symbol_sync_xx_1, 0), (self.digital_binary_slicer_fb_0_0, 0))
         self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 0))
         self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 1))
@@ -492,6 +493,12 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.sps = sps
         self.blocks_moving_average_xx_0.set_length_and_scale(int(self.sps), 0.1)
         self.qtgui_time_sink_x_3.set_y_axis(self.sps - 0.1 * self.sps, self.sps + 0.1 * self.sps)
+
+    def get_packet_len(self):
+        return self.packet_len
+
+    def set_packet_len(self, packet_len):
+        self.packet_len = packet_len
 
     def get_fsk_deviation_hz(self):
         return self.fsk_deviation_hz
