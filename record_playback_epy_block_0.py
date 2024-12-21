@@ -22,7 +22,7 @@ numpy.float64
 class blkz(gr.sync_block):  # other base classes are basic_block, decim_block, interp_block
     """Embedded Python Block example - a simple multiply const"""
 
-    def __init__(self, storage_file="/tmp/our_bits.bin"):  # only default arguments here
+    def __init__(self, storage_file="/tmp/ramdisk/our_bits.bin"):  # only default arguments here
         """arguments to this function show up as parameters in GRC"""
         gr.sync_block.__init__(
             self,
@@ -30,7 +30,8 @@ class blkz(gr.sync_block):  # other base classes are basic_block, decim_block, i
             in_sig=[np.byte],
             out_sig=[]
         )
-
+        if storage_file is None:
+            storage_file = "/tmp/ramdisk/our_bits.bin"
         self.storage_file = storage_file
 
     def work(self, input_items, output_items):
@@ -38,9 +39,7 @@ class blkz(gr.sync_block):  # other base classes are basic_block, decim_block, i
         # print(input_items)
         self.f.write(input_items[0].tobytes())
         return 0
-        """example: multiply with constant"""
-        output_items[0][:] = input_items[0] * self.example_param
-        return 0
+
 
 
     def start(self):

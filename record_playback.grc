@@ -348,29 +348,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1512, 588.0]
+    coordinate: [1336, 596.0]
     rotation: 0
     state: bypassed
-- name: blocks_repack_bits_bb_0_0
-  id: blocks_repack_bits_bb
-  parameters:
-    affinity: ''
-    alias: ''
-    align_output: 'False'
-    comment: ''
-    endianness: gr.GR_LSB_FIRST
-    k: '1'
-    l: '8'
-    len_tag_key: '""'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1232, 540.0]
-    rotation: 0
-    state: enabled
 - name: blocks_skiphead_0
   id: blocks_skiphead
   parameters:
@@ -422,7 +402,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1040, 352.0]
+    coordinate: [1080, 344.0]
     rotation: 0
     state: true
 - name: blocks_uchar_to_float_0_0
@@ -554,33 +534,33 @@ blocks:
       numpy.int8\nnumpy.int16\nnumpy.int32\nnumpy.float32\nnumpy.float64\n\"\"\"\n\
       \nclass blkz(gr.sync_block):  # other base classes are basic_block, decim_block,\
       \ interp_block\n    \"\"\"Embedded Python Block example - a simple multiply\
-      \ const\"\"\"\n\n    def __init__(self, storage_file=\"/tmp/our_bits.bin\"):\
-      \  # only default arguments here\n        \"\"\"arguments to this function show\
-      \ up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n         \
-      \   self,\n            name='WriteBitsToFile',   # will show up in GRC\n   \
-      \         in_sig=[np.byte],\n            out_sig=[]\n        )\n\n        self.storage_file\
-      \ = storage_file\n\n    def work(self, input_items, output_items):\n       \
-      \ # print(type(input_items))\n        # print(input_items)\n        self.f.write(input_items[0].tobytes())\n\
-      \        return 0\n        \"\"\"example: multiply with constant\"\"\"\n   \
-      \     output_items[0][:] = input_items[0] * self.example_param\n        return\
-      \ 0\n\n\n    def start(self):\n        self.f = open(self.storage_file, \"wb\"\
-      )\n\n    def stop(self):\n        self.f.close()\n        self.f = None\n"
+      \ const\"\"\"\n\n    def __init__(self, storage_file=\"/tmp/ramdisk/our_bits.bin\"\
+      ):  # only default arguments here\n        \"\"\"arguments to this function\
+      \ show up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n    \
+      \        self,\n            name='WriteBitsToFile',   # will show up in GRC\n\
+      \            in_sig=[np.byte],\n            out_sig=[]\n        )\n        if\
+      \ storage_file is None:\n            storage_file = \"/tmp/ramdisk/our_bits.bin\"\
+      \n        self.storage_file = storage_file\n\n    def work(self, input_items,\
+      \ output_items):\n        # print(type(input_items))\n        # print(input_items)\n\
+      \        self.f.write(input_items[0].tobytes())\n        return 0\n\n\n\n  \
+      \  def start(self):\n        self.f = open(self.storage_file, \"wb\")\n\n  \
+      \  def stop(self):\n        self.f.close()\n        self.f = None\n"
     affinity: ''
     alias: ''
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    storage_file: '''/tmp/our_bits.bin'''
+    storage_file: '''/tmp/ramdisk/our_bits.bin'''
   states:
-    _io_cache: ('WriteBitsToFile', 'blkz', [('storage_file', "'/tmp/our_bits.bin'")],
+    _io_cache: ('WriteBitsToFile', 'blkz', [('storage_file', "'/tmp/ramdisk/our_bits.bin'")],
       [('0', 'byte', 1)], [], 'Embedded Python Block example - a simple multiply const',
       ['storage_file'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1448, 444.0]
+    coordinate: [1712, 652.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: freq_xlating_fir_filter_xxx_0
   id: freq_xlating_fir_filter_xxx
   parameters:
@@ -600,23 +580,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [360, 284.0]
-    rotation: 0
-    state: true
-- name: ival_decimator_0
-  id: ival_decimator
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    datatype: byte
-    decimation: '10000'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [976, 572.0]
     rotation: 0
     state: true
 - name: network_udp_sink_0
@@ -836,7 +799,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1072, 428.0]
+    coordinate: [1120, 436.0]
     rotation: 0
     state: true
 - name: qtgui_time_sink_x_1
@@ -1261,15 +1224,14 @@ connections:
 - [blocks_head_0, '0', blocks_throttle2_0, '0']
 - [blocks_moving_average_xx_0, '0', digital_symbol_sync_xx_1, '0']
 - [blocks_multiply_const_vxx_0, '0', qtgui_time_sink_x_2, '2']
+- [blocks_repack_bits_bb_0, '0', epy_block_0, '0']
 - [blocks_repack_bits_bb_0, '0', network_udp_sink_0, '0']
-- [blocks_repack_bits_bb_0_0, '0', epy_block_0, '0']
 - [blocks_skiphead_0, '0', blocks_head_0, '0']
 - [blocks_throttle2_0, '0', freq_xlating_fir_filter_xxx_0, '0']
 - [blocks_throttle2_0, '0', qtgui_sink_x_0, '0']
 - [blocks_uchar_to_float_0, '0', qtgui_time_sink_x_0, '0']
 - [blocks_uchar_to_float_0_0, '0', blocks_multiply_const_vxx_0, '0']
 - [digital_binary_slicer_fb_0, '0', blocks_uchar_to_float_0, '0']
-- [digital_binary_slicer_fb_0, '0', ival_decimator_0, '0']
 - [digital_binary_slicer_fb_0_0, '0', blocks_repack_bits_bb_0, '0']
 - [digital_binary_slicer_fb_0_0, '0', blocks_uchar_to_float_0_0, '0']
 - [digital_binary_slicer_fb_0_0, '0', digital_correlate_access_code_tag_xx_1, '0']
@@ -1284,7 +1246,6 @@ connections:
 - [digital_symbol_sync_xx_1, '2', qtgui_time_sink_x_3, '0']
 - [digital_symbol_sync_xx_1, '3', qtgui_time_sink_x_3, '1']
 - [freq_xlating_fir_filter_xxx_0, '0', analog_simple_squelch_cc_1, '0']
-- [ival_decimator_0, '0', blocks_repack_bits_bb_0_0, '0']
 - [pdu_tagged_stream_to_pdu_0, pdus, blocks_message_debug_0, log]
 - [pdu_tagged_stream_to_pdu_0, pdus, blocks_message_debug_0, print]
 - [root_raised_cosine_filter_0, '0', blocks_moving_average_xx_0, '0']

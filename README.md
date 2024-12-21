@@ -61,3 +61,14 @@ Capture the udp stream with
 ```
 nc -u -l -k 127.0.0.1 2003 | hexdump -C
 ```
+
+
+### To pulseview/sigrok
+
+Using the new python block to write data to disk (recommand a ramdisk).
+
+Non packed bytes, then
+```
+sigrok-cli -I binary:numchannels=1:samplerate=204800 -i our_bits.bin  -o ourdata.sr
+```
+
