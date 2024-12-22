@@ -28,6 +28,7 @@ class A7139BitstreamParser:
                 self.buffer = self.buffer[all_high + 1:]
                 # print(f"Found packet at {packet}  {hexdump(packet)}")
                 print(f"{len(packet)}  {hexdump(packet)}")
+                brute_force_packet(packet)
                 continue
 
             # print(f"Stripping buffer and continuing")
@@ -49,9 +50,7 @@ def bits_to_bytes(z, endianness=False):
         b.append(byte)
     return bytes(b)
 
-def parse_from_cli():
-    a = sys.argv[1]
-    d = [int(v, 16) for v in a.split()]
+def brute_force_packet(d):
     # Two options:
     # [0]: CRC-CCITT (X 16 + X 12 + X 5 + 1).
     # [1]: CRC-DNP (X 16 + X 13 + X 12 + X 11 + X 10 + X 8 + X 6 + X 5 + X 2 + 1).
@@ -74,11 +73,11 @@ def parse_from_cli():
 
     payload_bytes_possible = total_bytes - preamble_bytes - idcode_bytes - crc_bytes
     print(f"payload_bytes_possible: {payload_bytes_possible}")
-    for payload_len in range(1, payload_bytes_possible + 1):
+    for payload_len in range(2, payload_bytes_possible + 1):
         for offset in range(0, len(d) - (payload_len * 8 + crc_bytes * 8)):
             payload = d[offset: offset + payload_len * 8]
             crc_value = d[offset + payload_len * 8: offset + payload_len * 8 + crc_bytes * 8]
-            print(payload, crc_value)
+            # print(payload, crc_value)
             for endianness in [True, False]:
                 for c in ["crc-16-dnp", "crc-ccitt-false", "crc-aug-ccitt", "xmodem", "x-25", "crc-16-mcrf4xx", "crc-16-genibus", "crc-16-riello", "kermit"]:
                     for invert in [True, False]:
@@ -95,14 +94,19 @@ def parse_from_cli():
                                     crc_calc = bytes([~v + 256 for v in crc_calc])
                                 if crc_data == crc_calc:
                                     print(f"yay at {locals()}")
-                                    sys.exit(1)
+                                    # sys.exit(1)
             
+
+def parse_from_cli():
+    a = sys.argv[1]
+    d = [int(v, 16) for v in a.split()]
     print(d)
+    brute_force_packet(d)
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         parse_from_cli()
-    sys.exit()
+        sys.exit()
     listen_addr = ('0.0.0.0', 2003)
 
     parser = A7139BitstreamParser()
