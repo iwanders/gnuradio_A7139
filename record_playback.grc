@@ -233,7 +233,7 @@ blocks:
     hdr_file: /tmp/capture_query.grcbin
     maxoutbuf: '0'
     minoutbuf: '0'
-    repeat: 'False'
+    repeat: 'True'
     type: complex
     vlen: '1'
   states:
@@ -590,7 +590,7 @@ blocks:
     alias: ''
     comment: ''
     header: '0'
-    payloadsize: '8'
+    payloadsize: '1024'
     port: '2003'
     send_eof: 'False'
     type: byte

@@ -362,7 +362,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.qtgui_sink_x_0.enable_rf_freq(False)
 
         self.top_layout.addWidget(self._qtgui_sink_x_0_win)
-        self.network_udp_sink_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 2003, 0, 8, False)
+        self.network_udp_sink_0 = network.udp_sink(gr.sizeof_char, 1, '127.0.0.1', 2003, 0, 1024, False)
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(1, firdes.complex_band_pass(1.0, samp_rate, fsk_deviation_hz/2 - bandpass_filter_width, fsk_deviation_hz/2 + bandpass_filter_width, bandpass_filter_width), (434100000 + 0.07e6), samp_rate)
         self.digital_symbol_sync_xx_1 = digital.symbol_sync_ff(
             digital.TED_EARLY_LATE,
@@ -383,7 +383,7 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "time" == "auto" else max( int(float(1) * samp_rate) if "time" == "time" else int(1), 1) )
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(100)
         self.blocks_moving_average_xx_0 = blocks.moving_average_ff(int(sps), 0.1, 4000, 1)
-        self.blocks_file_meta_source_0 = blocks.file_meta_source('/tmp/capture_query.grcbin', False, False, '/tmp/capture_query.grcbin')
+        self.blocks_file_meta_source_0 = blocks.file_meta_source('/tmp/capture_query.grcbin', True, False, '/tmp/capture_query.grcbin')
         self.analog_simple_squelch_cc_1 = analog.simple_squelch_cc(squelch_threshold_db, squelch_alpha)
         self.analog_quadrature_demod_cf_1 = analog.quadrature_demod_cf((samp_rate/(2*math.pi*fsk_deviation_hz)))
 
@@ -409,8 +409,8 @@ class record_playback(gr.top_block, Qt.QWidget):
         self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 0))
         self.connect((self.digital_symbol_sync_xx_1, 0), (self.qtgui_time_sink_x_2, 1))
         self.connect((self.digital_symbol_sync_xx_1, 1), (self.qtgui_time_sink_x_2_0, 0))
-        self.connect((self.digital_symbol_sync_xx_1, 3), (self.qtgui_time_sink_x_3, 1))
         self.connect((self.digital_symbol_sync_xx_1, 2), (self.qtgui_time_sink_x_3, 0))
+        self.connect((self.digital_symbol_sync_xx_1, 3), (self.qtgui_time_sink_x_3, 1))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.analog_simple_squelch_cc_1, 0))
         self.connect((self.root_raised_cosine_filter_0, 0), (self.blocks_moving_average_xx_0, 0))
         self.connect((self.root_raised_cosine_filter_0, 0), (self.qtgui_time_sink_x_1, 0))
