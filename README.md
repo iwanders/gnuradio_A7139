@@ -72,3 +72,15 @@ Non packed bytes, then
 sigrok-cli -I binary:numchannels=1:samplerate=204800 -i our_bits.bin  -o ourdata.sr
 ```
 
+### Parsing the bitstream
+Python script to accept the incoming udp packets is in `parse_bitstream.py`
+Packet is;
+```
+
+preamble | id code |     payload         | CRC    
+ 4 bytes | 4 bytes |     max 256 bytes   | 2 bytes
+                    <------------------------------> Whitening
+                    <------------------------------> FEC
+                    <-------------------> CRC
+```
+
